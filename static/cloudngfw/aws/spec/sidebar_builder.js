@@ -2,9 +2,7 @@ const globby = require("globby");
 const yaml = require("js-yaml");
 const fs = require("fs");
 // Use the following to frontload docs
-var docs = [
-    "api/aws/awsapi"
-];
+var docs = ["api/aws/awsapi"];
 
 // Change these variables to match your doc path
 const relativePath = "api/aws";
@@ -21,8 +19,9 @@ function genEndpoints() {
   specs.map((spec) => {
     const specContents = fs.readFileSync(spec.path, "utf8");
     const data = yaml.load(specContents);
-    const categoryLabel = data.tags[0].name;
-    const docId = categoryLabel
+    const categoryLabel = data.info.title;
+    const tagLabel = data.tags[0].name;
+    const docId = tagLabel
       .replace(/([a-z]T)([A-Z])/g, "$1-$2")
       .replace(/[\s_]+/g, "-")
       .toLowerCase();
