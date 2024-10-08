@@ -393,7 +393,7 @@ paths:
       - Application
   /insights/v3.0/resource/query/incidents/incidents_view:
     post:
-      description: 'Retrieves the incident view list.
+      description: 'Retrieve the list of incidents.
 
         '
       operationId: post-insights-v3.0-resource-query-incidents-incidents_view
@@ -540,7 +540,7 @@ paths:
           description: OK
       security:
       - Bearer: []
-      summary: Incident view list
+      summary: Incident list
       tags:
       - Incidents
   /insights/v3.0/resource/query/locations/location_current_status_count:
