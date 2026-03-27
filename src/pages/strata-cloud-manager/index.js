@@ -46,6 +46,11 @@ export default function SCMLandingPage() {
           to: "scm/docs/release-notes",
           icon: "doc",
         },
+        {
+          label: "Strata Cloud Manager API Best Practices",
+          to: "scm/docs/api-best-practices",
+          icon: "doc",
+        },
       ],
     },
     {
@@ -101,8 +106,8 @@ export default function SCMLandingPage() {
             icon: "api-doc",
           },
           {
-            to: "scm/api/config/sase/mobileagent/mobileagent-api",
-            label: "GlobalProtect",
+            to: "scm/api/config/sase/network configurations/network-api",
+            label: "Network Configurations",
             icon: "api-doc",
           },
           {
@@ -180,6 +185,27 @@ export default function SCMLandingPage() {
             icon: "api-doc",
           },
         ],
+        "NGFW Operations": [
+          {
+            to: "scm/api/config/ngfw-operations/ngfw-operations-introduction",
+            label: "NGFW Operations",
+            icon: "api-doc",
+          },
+        ],
+        Posture: [
+          {
+            to: "scm/api/config/posture-management/introduction-posture",
+            label: "Posture",
+            icon: "api-doc",
+          },
+        ],
+        Incidents: [
+          {
+            to: "scm/api/config/incidents/incident-scm",
+            label: "Incidents API",
+            icon: "api-doc",
+          },
+        ],
         "Other Configuration": [
           {
             to: "/access/api/browser-mgmt/browser-mgmt-api",
@@ -214,6 +240,8 @@ export default function SCMLandingPage() {
           {
             label: "Snippet Sharing",
             to: "scm/api/config/snippet-sharing",
+            label: "CIE Directory Sync Service",
+            to: "scm/api/config/ciedss/ciedss",
             icon: "api-doc",
           },
         ],

@@ -45,6 +45,9 @@ __Attributes__
     [`CheckType`](/panos/docs/panos-upgrade-assurance/api/utils#class-checktype) class, values are references to methods that
     will be run.
 
+- `EXPLICIT_CHECKS (set)`: Class variable containing a set of readiness checks that are only run if passed explicitly in
+    `checks_configuration` to [`run_readiness_checks()`](#checkfirewallrun_readiness_checks).
+
 ### `CheckFirewall.__init__`
 
 ```python
@@ -330,7 +333,9 @@ __Returns__
 
 ```python
 def check_ipsec_tunnel_status(
-        tunnel_name: Optional[str] = None) -> CheckResult
+        tunnel_name: Optional[str] = None,
+        proxy_ids: Optional[List[str]] = None,
+        require_all_active: Optional[bool] = False) -> CheckResult
 ```
 
 Check if a given IPSec tunnel is in active state.
@@ -339,6 +344,9 @@ __Parameters__
 
 
 - __tunnel_name__ (`str, optional`): (defaults to `None`) Name of the searched IPSec tunnel.
+- __proxy_ids__ (`list(str), optional`): (defaults to `None`) ProxyID names to check. All ProxyIDs are checked if None provided.
+- __require_all_active__ (`bool, optional`): (defaults to `False`) If set, all ProxyIDs should be in `active` state. States are
+    checked only within `proxy_ids` if provided.
 
 __Returns__
 
@@ -549,18 +557,193 @@ __Returns__
 * [`CheckStatus.SKIPPED`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when there are no jobs on a
     device.
 
-### `CheckFirewall.get_content_db_version`
+### `CheckFirewall.check_global_jumbo_frame`
 
 ```python
-def get_content_db_version() -> Dict[str, str]
+def check_global_jumbo_frame(mode: bool = None) -> CheckResult
 ```
 
-Get Content DB version.
+Check if the global jumbo frame configuration matches the desired mode.
+
+__Parameters__
+
+
+- __mode__ (`bool`): The desired mode of the global jumbo frame configuration.
 
 __Returns__
 
 
-`dict(str)`: To keep the standard of all `get` methods returning a dictionary this value is also returned as a dictionary             in the following format:
+`CheckResult`: Object of [`CheckResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkresult) class taking             value of:
+
+* [`CheckStatus.SUCCESS`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when the global jumbo frame
+    mode matches the desired mode.
+* [`CheckStatus.FAIL`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when the current global jumbo
+    frame and the desired modes differ.
+* [`CheckStatus.SKIPPED`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when `mode` is not provided.
+
+### `CheckFirewall.check_system_environmentals`
+
+```python
+def check_system_environmentals(
+        components: Optional[List[str]] = None) -> CheckResult
+```
+
+Check system environmentals for alarms.
+
+__Parameters__
+
+
+- __components__ (`list(str), optional`): (defaults to None) List of components to check for alarms.
+    If None, all components are checked. Valid components are 'thermal', 'fantray', 'fan', 'power', 'power-supply'.
+
+__Returns__
+
+
+`CheckResult`: Object of [`CheckResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkresult) class taking             value of:
+
+* [`CheckStatus.SUCCESS`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) if no alarms are found in the
+    specified components.
+* [`CheckStatus.FAIL`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) if any alarm is found in specified
+    components.
+* [`CheckStatus.ERROR`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when invalid components are
+    specified or device did not return environmentals.
+
+### `CheckFirewall.check_dp_cpu_utilization`
+
+```python
+def check_dp_cpu_utilization(threshold: int = 80,
+                             minutes: int = 5) -> CheckResult
+```
+
+Check if the data plane CPU utilization is below a specified threshold.
+
+This check retrieves the data plane CPU utilization for the specified duration and calculates the average CPU load
+across all cores. If the average CPU load is below the threshold, the check passes.
+
+__Parameters__
+
+
+- __threshold__ (`int, optional`): (defaults to 80) Maximum acceptable average CPU utilization percentage.
+- __minutes__ (`int, optional`): (defaults to 5) Number of minutes to check, between 1 and 60.
+
+__Raises__
+
+
+- `WrongDataTypeException`: Raised when the threshold or minutes parameters are not integers.
+
+__Returns__
+
+
+`CheckResult`: Object of [`CheckResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkresult) class taking             value of:
+
+* [`CheckStatus.SUCCESS`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when average CPU utilization is below the threshold.
+* [`CheckStatus.FAIL`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when average CPU utilization is equal to or above the threshold.
+* [`CheckStatus.ERROR`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when the data cannot be retrieved.
+
+### `CheckFirewall.check_mp_cpu_utilization`
+
+```python
+def check_mp_cpu_utilization(threshold: int = 80) -> CheckResult
+```
+
+Check if the management plane CPU utilization is below a specified threshold.
+
+This check retrieves the management plane CPU utilization for the last 1 minute and compares it
+against the provided threshold.
+
+__Parameters__
+
+
+- __threshold__ (`int, optional`): (defaults to 80) Maximum acceptable CPU utilization percentage.
+
+__Raises__
+
+
+- `WrongDataTypeException`: Raised when the threshold parameter is not an integer or is outside the allowed range.
+
+__Returns__
+
+
+`CheckResult`: Object of [`CheckResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkresult) class taking             value of:
+
+* [`CheckStatus.SUCCESS`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when CPU utilization is below the threshold.
+* [`CheckStatus.FAIL`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when CPU utilization is equal to or above the threshold.
+* [`CheckStatus.ERROR`](/panos/docs/panos-upgrade-assurance/api/utils#class-checkstatus) when the data cannot be retrieved.
+
+### `CheckFirewall.get_nics_snapshot`
+
+```python
+def get_nics_snapshot() -> SnapResult
+```
+
+Get NICs information as a snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the NICs snapshot operation.
+
+### `CheckFirewall.get_routes_snapshot`
+
+```python
+def get_routes_snapshot() -> SnapResult
+```
+
+Get routes information for Legacy Routing Engine as a snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the routes snapshot operation.
+
+### `CheckFirewall.get_bgp_peers_snapshot`
+
+```python
+def get_bgp_peers_snapshot() -> SnapResult
+```
+
+Get BGP peers information for Legacy Routing Engine as a snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the BGP peers snapshot operation.
+
+### `CheckFirewall.get_license_snapshot`
+
+```python
+def get_license_snapshot() -> SnapResult
+```
+
+Get license information as a snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the license snapshot operation.
+
+### `CheckFirewall.get_arp_table_snapshot`
+
+```python
+def get_arp_table_snapshot() -> SnapResult
+```
+
+Get ARP table information as a snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the ARP table snapshot operation.
+
+### `CheckFirewall.get_content_db_version_snapshot`
+
+```python
+def get_content_db_version_snapshot() -> SnapResult
+```
+
+Get Content DB version as a snapshot.
+
+To keep the standard of all snapshots represented as a dictionary, content version is also returned as a dictionary             in the following format:
 
 ```python showLineNumbers
 {
@@ -568,18 +751,33 @@ __Returns__
 }
 ```
 
-### `CheckFirewall.get_ip_sec_tunnels`
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the content DB version snapshot operation.
+
+### `CheckFirewall.get_session_stats_snapshot`
 
 ```python
-def get_ip_sec_tunnels() -> Dict[str, dict]
+def get_session_stats_snapshot() -> SnapResult
 ```
 
-Extract information about IPSEC tunnels from all tunnel data retrieved from a device.
+Get session statistics as a snapshot.
 
 __Returns__
 
 
-`dict`: Currently configured IPSEC tunnels. The returned value is similar to the example below. It can differ though             depending on the version of PanOS:
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the session statistics snapshot operation.
+
+### `CheckFirewall.get_ip_sec_tunnels_snapshot`
+
+```python
+def get_ip_sec_tunnels_snapshot() -> SnapResult
+```
+
+Get IPSec tunnels information as a snapshot.
+
+Currently configured IPSEC tunnels. The returned snapshot value is similar to the example below. It can differ though             depending on the version of PanOS:
 
 ```python showLineNumbers title="Example"
 {
@@ -597,6 +795,90 @@ __Returns__
     }
 }
 ```
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the IPSec tunnels snapshot operation.
+
+### `CheckFirewall.get_fib_snapshot`
+
+```python
+def get_fib_snapshot() -> SnapResult
+```
+
+Get FIB routes information for Legacy Routing Engine as a snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the FIB routes snapshot operation.
+
+### `CheckFirewall.get_global_jumbo_frame_snapshot`
+
+```python
+def get_global_jumbo_frame_snapshot() -> SnapResult
+```
+
+Get global jumbo frame configuration as a snapshot.
+
+The global jumbo frame configuration. The returned snapshot value is similar to the example below.
+
+```python showLineNumbers title="Example"
+{
+    'mode': True
+}
+```
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the global jumbo frame snapshot operation.
+
+### `CheckFirewall.get_interfaces_mtu_snapshot`
+
+```python
+def get_interfaces_mtu_snapshot(
+        include_subinterfaces: bool = False) -> SnapResult
+```
+
+Get interfaces MTU information as a snapshot.
+
+__Parameters__
+
+
+- __include_subinterfaces__ (`bool, optional`): (defaults to False) Whether to include sub-interfaces in the snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the interfaces MTU snapshot operation.
+
+### `CheckFirewall.get_are_routes_snapshot`
+
+```python
+def get_are_routes_snapshot() -> SnapResult
+```
+
+Get ARE routes information as a snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the ARE routes snapshot operation.
+
+### `CheckFirewall.get_are_fib_snapshot`
+
+```python
+def get_are_fib_snapshot() -> SnapResult
+```
+
+Get ARE FIB routes information as a snapshot.
+
+__Returns__
+
+
+`SnapResult`: Object of [`SnapResult`](/panos/docs/panos-upgrade-assurance/api/utils#class-snapresult) class             representing the result of the ARE FIB routes snapshot operation.
 
 ### `CheckFirewall.run_readiness_checks`
 
@@ -644,7 +926,7 @@ This method provides a convenient way of running snapshots of a device state. Fo
 __Parameters__
 
 
-- __snapshots_config__ (`list(str), optional`): (defaults to `None`) Defines snapshots of which areas will be taken.
+- __snapshots_config__ (`list(str,dict), optional`): (defaults to `None`) Defines snapshots of which areas will be taken.
 
 __Raises__
 
@@ -654,7 +936,7 @@ __Raises__
 __Returns__
 
 
-`dict`: The results of the executed snapshots.
+`dict`: The results of the executed snapshots, including status, reason, and snapshot data as dictionary values.
 
 ### `CheckFirewall.run_health_checks`
 

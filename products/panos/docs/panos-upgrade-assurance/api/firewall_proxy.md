@@ -234,6 +234,21 @@ __Returns__
 
 `bool`: `True` when connection is up, `False` otherwise.
 
+### `FirewallProxy.is_global_jumbo_frame_set`
+
+```python
+def is_global_jumbo_frame_set() -> bool
+```
+
+Get the global jumbo frame configuration.
+
+The actual API command is `show system setting jumbo-frame`.
+
+__Returns__
+
+
+`bool`: `True` when global jumbo frame configuration is on, `False` otherwise.
+
 ### `FirewallProxy.get_ha_configuration`
 
 ```python
@@ -1170,6 +1185,10 @@ This method retrieves all jobs and their details, this means running, pending, f
 
 The actual API command is `show jobs all`.
 
+:::caution
+Job entries without a jod id is not returned in response. This is usually a 'Failed-Job' type of jobs.
+:::
+
 __Returns__
 
 
@@ -1356,6 +1375,178 @@ __Returns__
 }
 ```
 
+### `FirewallProxy.get_are_fib`
+
+```python
+def get_are_fib() -> dict
+```
+
+Get the information from the Advanced Routing Engine forwarding information table (FIB).
+
+The actual API command run is `show advanced-routing fib`.
+
+As of now API returns the complete same structure with the `show routing fib` command.
+See `get_fib()` for details of the return type.
+
+__Returns__
+
+
+`dict`: Status of the route entries in the FIB
+
+### `FirewallProxy._parse_fib`
+
+```python
+def _parse_fib(fib_response) -> dict
+```
+
+Parse the forwarding information base (FIB) response from PAN-OS API.
+
+This helper method processes the output from both 'show routing fib' and
+'show advanced-routing fib' API commands, which share the same structure.
+It converts the API response into a standardized dictionary format with
+keys that combine destination, interface, and nexthop values.
+
+__Parameters__
+
+
+- __fib_response__ (`dict`): Raw FIB response from the API.
+
+__Returns__
+
+
+`dict`: Parsed FIB entries where each key is formatted as:
+    '{destination}_{interface}_{nexthop}' with detailed route information as values.
+
+### `FirewallProxy.get_are_routes`
+
+```python
+def get_are_routes() -> dict
+```
+
+Get the advanced routing engine routes.
+
+The actual API command run is `show advanced-routing route`.
+
+This method fetches the routes from the advanced routing engine. The response includes
+information about routes in different logical routers and their details such as
+prefix, protocol, nexthops, etc.
+
+__Returns__
+
+
+`dict`: The advanced routing engine routes by logical router.
+
+```python showLineNumbers title="Sample output"
+{
+  "public-lr": {
+    "0.0.0.0/0": [
+      {
+        "prefix": "0.0.0.0/0",
+        "protocol": "static",
+        "vrfId": 0,
+        "vrfName": "default",
+        "selected": true,
+        "destSelected": true,
+        "distance": 10,
+        "metric": 10,
+        "installed": true,
+        "table": 254,
+        "internalStatus": 16,
+        "internalFlags": 73,
+        "internalNextHopNum": 2,
+        "internalNextHopActiveNum": 2,
+        "installedNexthopGroupId": 35,
+        "uptime": "00:00:26",
+        "nexthops": [
+          {
+            "flags": "A E ",
+            "fib": true,
+            "directlyConnected": true,
+            "interfaceIndex": 16,
+            "interfaceName": "ethernet1/1",
+            "active": true,
+            "weight": 1
+          },
+          {
+            "flags": "A E ",
+            "fib": true,
+            "directlyConnected": true,
+            "interfaceIndex": 17,
+            "interfaceName": "ethernet1/2",
+            "active": true,
+            "weight": 1
+          }
+        ]
+      }
+    ],
+    "10.0.0.0/8": [
+      {
+        "prefix": "10.0.0.0/8",
+        "protocol": "static",
+        "vrfId": 0,
+        "vrfName": "default",
+        "selected": true,
+        "destSelected": true,
+        "distance": 10,
+        "metric": 10,
+        "installed": true,
+        "table": 254,
+        "internalStatus": 16,
+        "internalFlags": 73,
+        "internalNextHopNum": 1,
+        "internalNextHopActiveNum": 1,
+        "installedNexthopGroupId": 3,
+        "uptime": "2d23h53m",
+        "nexthops": [
+          {
+            "flags": "A ",
+            "fib": true,
+            "directlyConnected": true,
+            "interfaceIndex": 61442,
+            "interfaceName": "private-lr",
+            "active": true,
+            "weight": 1
+          }
+        ]
+      }
+    ]
+  },
+  "private-lr": {
+    "0.0.0.0/0": [
+      {
+        "prefix": "0.0.0.0/0",
+        "protocol": "static",
+        "vrfId": 0,
+        "vrfName": "default",
+        "selected": true,
+        "destSelected": true,
+        "distance": 10,
+        "metric": 10,
+        "installed": true,
+        "table": 254,
+        "internalStatus": 16,
+        "internalFlags": 73,
+        "internalNextHopNum": 1,
+        "internalNextHopActiveNum": 1,
+        "installedNexthopGroupId": 3,
+        "uptime": "2d23h53m",
+        "nexthops": [
+          {
+            "flags": "A ",
+            "fib": true,
+            "directlyConnected": true,
+            "interfaceIndex": 61441,
+            "interfaceName": "public-lr",
+            "active": true,
+            "weight": 1
+          }
+        ]
+      }
+    ]
+  }
+}
+```
+
 ### `FirewallProxy.get_system_time_rebooted`
 
 ```python
@@ -1373,5 +1564,274 @@ __Returns__
 
 ```python showLineNumbers title="Sample output"
 datetime(2024, 01, 01, 00, 00, 00)
+```
+
+### `FirewallProxy.get_system_environmentals`
+
+```python
+def get_system_environmentals() -> dict
+```
+
+Get system environmental data.
+
+The actual API command is `show system environmentals`.
+
+__Returns__
+
+
+`dict`: System environmental data including thermal, fantray, fan, power, and power-supply information.
+    Sample output has been shortened for the sake of simplicity.
+
+```python showLineNumbers title="Sample output"
+{'fan': {'Slot1': {'entry': [{'RPMs': '3435',
+                              'alarm': 'False',
+                              'description': 'Fan `1` RPM',
+                              'min': '1000',
+                              'slot': '1'},
+                             {'RPMs': '3379',
+                              'alarm': 'False',
+                              'description': 'Fan `2` RPM',
+                              'min': '1000',
+                              'slot': '1'},
+                             {'RPMs': '3355',
+                              'alarm': 'False',
+                              'description': 'Fan `3` RPM',
+                              'min': '1000',
+                              'slot': '1'}]}},
+ 'fantray': {'Slot1': {'entry': {'Inserted': 'True',
+                                 'alarm': 'False',
+                                 'description': 'Fan Tray',
+                                 'min': '1',
+                                 'slot': '1'}}},
+ 'power': {'Slot1': {'entry': [{'Volts': '1.7939999999999998',
+                                'alarm': 'False',
+                                'description': 'Power: MP - 1.8V VCCIN',
+                                'max': '1.98',
+                                'min': '1.62',
+                                'slot': '1'},
+                               {'Volts': '1.8046666666666666',
+                                'alarm': 'False',
+                                'description': 'Power: DP - 1.8V Power Rail',
+                                'max': '1.98',
+                                'min': '1.62',
+                                'slot': '1'}]}},
+ 'power-supply': {'Slot1': {'entry': [{'Inserted': 'False',
+                                       'alarm': 'True',
+                                       'description': 'Power Supply `1` (left)',
+                                       'min': 'True',
+                                       'slot': '1'},
+                                      {'Inserted': 'True',
+                                       'alarm': 'False',
+                                       'description': 'Power Supply `2` (right)',
+                                       'min': 'True',
+                                       'slot': '1'}]}},
+ 'thermal': {'Slot0': {'entry': {'DegreesC': '29.8',
+                                 'alarm': 'False',
+                                 'description': 'Temperature: Broadwell MP '
+                                                'Core',
+                                 'max': '70.0',
+                                 'min': '-5.0',
+                                 'slot': '0'}},
+             'Slot1': {'entry': [{'DegreesC': '36.5',
+                                  'alarm': 'False',
+                                  'description': 'Temperature @ Rear Left[U54]',
+                                  'max': '70.0',
+                                  'min': '-5.0',
+                                  'slot': '1'},
+                                 {'DegreesC': '46.2',
+                                  'alarm': 'False',
+                                  'description': 'Temperature: FE100 Core',
+                                  'max': '70.0',
+                                  'min': '-5.0',
+                                  'slot': '1'}]}}}
+```
+
+### `FirewallProxy.get_dp_cpu_utilization`
+
+```python
+def get_dp_cpu_utilization(minutes: int = 5) -> dict
+```
+
+Get data plane CPU utilization for the last specified minutes.
+
+The actual API command is `show running resource-monitor minute last {minutes}`.
+
+__Parameters__
+
+
+- __minutes__ (`int, optional`): (defaults to 5) The number of minutes to check, between 1 and 60.
+
+__Raises__
+
+
+- `WrongDataTypeException`: Raised when the minutes parameter is not an integer or is outside the allowed range.
+- `MalformedResponseException`: Raised when response does not contain expected elements.
+
+__Returns__
+
+
+`dict`: Data plane CPU utilization per core and per minute.
+
+```python showLineNumbers title="Sample output"
+{
+    'dp0': {
+        'cpu-load-average': {
+            '0': [0, 0, 0, 0, 0],
+            '1': [0, 0, 0, 0, 0],
+            '2': [1, 1, 1, 1, 1],
+            '3': [0, 0, 0, 0, 0]
+        }
+    }
+}
+```
+
+### `FirewallProxy.get_mp_cpu_utilization`
+
+```python
+def get_mp_cpu_utilization() -> int
+```
+
+Get management plane CPU utilization for the last 1 minute.
+
+The actual API command is `<show><system><state><filter>sys.monitor.*.mp.exports</filter></state></system></show>`.
+MP state resides under s0 or s1 depending on the target firewall platform like `sys.monitor.s0.mp.exports` or
+`sys.monitor.s1.mp.exports` so a wildcard is used to match any.
+
+__Raises__
+
+
+- `MalformedResponseException`: Raised when response does not contain expected elements or data format is invalid.
+
+__Returns__
+
+
+`int`: Management plane CPU utilization percentage for the last 1 minute.
+
+### `FirewallProxy.get_interface_details`
+
+```python
+def get_interface_details(interface_name: str) -> dict
+```
+
+Get details for a specific interface.
+
+This method retrieves details for a given interface using the `show interface` command.
+
+__Parameters__
+
+
+- __interface_name__ (`str`): The name of the interface to query.
+
+__Returns__
+
+
+`dict`: Interface details.
+
+```python showLineNumbers title="Sample output"
+{'dp': 'dp0',
+ 'ifnet': {'addr': None,
+           'addr6': None,
+           'circuitonly': 'False',
+           'counters': {'hw': None,
+                        'ifnet': {'entry': {'flowstate': '0',
+                                            'ibytes': '0',
+                                            'icmp_frag': '0',
+                                            'idrops': '0',
+                                            'ierrors': '0',
+                                            'ifwderrors': '0',
+                                            'ipackets': '0',
+                                            'ipspoof': '0',
+                                            'l2_decap': '0',
+                                            'l2_encap': '0',
+                                            'land': '0',
+                                            'macspoof': '0',
+                                            'name': 'ethernet1/6.123',
+                                            'neighpend': '0',
+                                            'noarp': '0',
+                                            'nomac': '0',
+                                            'noneigh': '0',
+                                            'noroute': '0',
+                                            'obytes': '0',
+                                            'opackets': '0',
+                                            'other_conn': '0',
+                                            'pod': '0',
+                                            'sctp_conn': '0',
+                                            'tcp_conn': '0',
+                                            'teardrop': '0',
+                                            'udp_conn': '0',
+                                            'zonechange': '0'}}},
+           'dad': 'False',
+           'df_ignore': 'False',
+           'dhcpv6_client': 'False',
+           'dyn-addr': None,
+           'fwd_type': 'vr',
+           'gre': 'False',
+           'id': '138',
+           'inherited': 'False',
+           'ipv6_client': 'False',
+           'mgt_subnet': 'False',
+           'mode': 'layer3',
+           'mssadjv4': '0',
+           'mssadjv6': '0',
+           'mtu': '900',
+           'name': 'ethernet1/6.123',
+           'ndpmon': 'False',
+           'policing': 'False',
+           'proxy-protocol': 'no',
+           'ra': 'False',
+           'sdwan': 'False',
+           'service': None,
+           'tag': '123',
+           'tcpmss': 'False',
+           'tunnel': None,
+           'vr': 'default',
+           'vsys': 'vsys6',
+           'zone': 'N/A'}}
+```
+
+```python showLineNumbers title="Interface not found"
+{'dp': 'dp0', 'error': "Interface 'ethernet1/123' not found"}
+```
+
+### `FirewallProxy.get_interfaces_mtu`
+
+```python
+def get_interfaces_mtu(include_subinterfaces: bool = False) -> dict
+```
+
+Get MTU sizes for all interfaces.
+
+This method retrieves MTU sizes for all interfaces on the device. It can optionally include
+sub-interfaces as well.
+
+The API command `show system state filter sw.dev.interface.config` is used to retrive MTU sizes for parent interfaces
+however it does not include MTU values for sub-interfaces. Sub-interfaces are individually queried via the
+`get_interface_details()` method if requested.
+
+__Parameters__
+
+
+- __include_subinterfaces__ (`bool, optional`): (defaults to False) Whether to include sub-interfaces in the results.
+
+__Returns__
+
+
+`dict`: A dictionary containing interfaces and their MTU sizes.
+
+```python showLineNumbers title="Sample output"
+{
+    'ethernet1/1': {
+        'mtu': 1500,
+    },
+    'ethernet1/1.20': {
+        'mtu': 900,
+    },
+    'ethernet1/2': {
+        'mtu': 1200,
+    },
+    'ethernet1/3': {
+        'mtu': None,
+    },
+}
 ```
 

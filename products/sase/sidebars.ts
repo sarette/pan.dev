@@ -299,9 +299,45 @@ module.exports = {
     "sase/api/mt-notifications/notifications-api",
     require("./api/mt-notifications/sidebar"),
   ],
-  sasemtinterconnect: [
-    "sase/api/mt-interconnect/mt-interconnect",
-    require("./api/mt-interconnect/sidebar"),
+  
+  // UNIFIED SP INTERCONNECT SIDEBAR
+  spinterconnect: [
+    // 1. Root Introduction (Must exist at: sase/api/mt-interconnect/introduction.md)
+    "sase/api/mt-interconnect/introduction", 
+    
+    // 2. Manage Category
+    {
+      type: "category",
+      label: "Manage",
+      collapsed: false,
+      items: [
+        // Ensure the ID in manage-introduction.md is exactly "manage-introduction"
+        "sase/api/mt-interconnect/Manage/manage-introduction",
+        ...require("./api/mt-interconnect/Manage/sidebar"),
+      ],
+    },
+    
+    // 3. Monitor Category
+    {
+      type: "category",
+      label: "Monitor",
+      collapsed: false,
+      items: [
+        // Ensure the ID in monitor-introduction.md is exactly "monitor-introduction"
+        "sase/api/mt-interconnect/Monitor/monitor-introduction",
+        ...require("./api/mt-interconnect/Monitor/sidebar"),
+      ],
+    },
+  ],
+
+  manageservices: [
+    "sase/api/manage-services-5g/introduction",
+    "sase/api/manage-services-5g/overview",
+    require("./api/manage-services-5g/sidebar"),
+  ],
+  monitorservices: [
+    "sase/api/monitor-services-5g/introduction-monitor",
+    require("./api/monitor-services-5g/sidebar"),
   ],
   monitoringservice: [
     "sase/api/monitoring_service/introduction_5g",
@@ -311,12 +347,17 @@ module.exports = {
   configorch: [
     "sase/api/config-orch/introduction",
     "sase/api/config-orch/api-workflow",
+    "sase/api/config-orch/site-license-workflow",
     require("./api/config-orch/sidebar"),
   ],
   securityposture: [
     "sase/api/sspm/sspm-introduction",
     "sase/api/sspm/sspm-api-workflow",
     require("./api/sspm/sidebar"),
+  ],
+  identitysspm: [
+    "sase/api/identity-sspm/introduction",
+    require("./api/identity-sspm/sidebar"),
   ],
   sasesubscription: [
     "sase/api/subscription/subscription-api",
@@ -326,4 +367,9 @@ module.exports = {
     "sase/api/tenancy/tenancy-api",
     require("./api/tenancy/sidebar"),
   ],
+  pabmsp: [
+    "sase/api/pab-msp/pab-msp-api",
+    require("./api/pab-msp/sidebar"),
+  ],
+  
 };

@@ -22,6 +22,10 @@ module.exports = {
           id: "scm/docs/service-accounts",
         },
         {
+          type: "doc",
+          id: "scm/docs/api-best-practices",
+        },
+        {
           type: "category",
           label: "Roles",
           collapsed: true,
@@ -120,6 +124,17 @@ module.exports = {
               id: "scm/api/config/sase/setup/snippet-sharing",
             },
             require("./api/config/sase/setup/sidebar"),
+          ],
+        },
+        {
+          type: "category",
+          label: "Network Configuration",
+          items: [
+            {
+              type: "doc",
+              id: "scm/api/config/sase/network configurations/network-api",
+            },
+            require("./api/config/sase/network configurations/sidebar"),
           ],
         },
         {
@@ -269,6 +284,54 @@ module.exports = {
     },
     {
       type: "category",
+      label: "Incidents API",
+      collapsed: true,
+      items: [
+        {
+          type: "doc",
+          id: "scm/api/config/incidents/incident-scm",
+        },
+        require("./api/config/incidents/sidebar"),
+      ],
+    },
+    {
+      type: "category",
+      label: "Posture API",
+      collapsed: true,
+      items: [
+        {
+          type: "doc",
+          id: "scm/api/config/posture-management/introduction-posture",
+        },
+        {
+          type: "category",
+          label: "Checks",
+          collapsed: true,
+          items: [
+            {
+              type: "category",
+              label: "Reports",
+              collapsed: true,
+              items: [require("./api/config/posture-management/sidebar")],
+            },
+          ],
+        },
+      ],
+    },
+    {
+      type: "category",
+      label: "NGFW Operations",
+      collapsed: true,
+      items: [
+            {
+              type: "doc",
+              id: "scm/api/config/ngfw-operations/ngfw-operations-introduction",
+            },
+            require("./api/config/ngfw-operations/sidebar"),
+          ],
+        },
+    {
+      type: "category",
       label: "Cloud NGFW Configuration",
       collapsed: true,
       items: [
@@ -339,6 +402,11 @@ module.exports = {
   scmsubscription: [
     "scm/api/subscription/subscription-api",
     require("./api/subscription/sidebar"),
+  ],
+  scmciedss: [
+    "scm/api/config/ciedss/ciedss",
+    "scm/api/config/ciedss/usecases",
+    require("./api/config/ciedss/sidebar"),
   ],
   scmtenancy: ["scm/api/tenancy/tenancy-api", require("./api/tenancy/sidebar")],
 };

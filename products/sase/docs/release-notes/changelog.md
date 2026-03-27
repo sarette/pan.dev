@@ -13,6 +13,12 @@ keywords:
 
 | Date            | Description                                                                                                                                                                           |
 | --------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| February 23, 2026     | Added new [Prisma Browser for MSP](/sase/api/pab-msp/pab-msp-api/).
+| February 12, 2026     | Backbone and Connection APIs are now deprecated and have been replaced by the [Service Provider (SP) Interconnect](/sase/api/mt-interconnect/introduction/).
+| Oct 8, 2025     | Added new APIs to [SASE 5G Manage Services APIs](/sase/api/manage-services-5g/).
+| July 1, 2025     | Added [Identity Security Posture Management APIs](/sase/api/identity-sspm/).
+| June 24, 2025     | Added Plugin API to [SaaS Security Posture Management APIs](/sase/api/sspm/).
+| May 20, 2025     | Added [SASE 5G Manage Services APIs](/sase/api/manage-services-5g/).
 | April 10, 2025     | Added [Prisma Access Insights 3.0 APIs](/access/api/insights/).
 | Feb 6, 2025     | Added [Prisma Access Configuration Orchestration APIs](/sase/api/introduction/)                                                                    |
 | Jan 9th, 2025  | Added [SaaS Security Posture Management APIs](/sase/api/sspm/).                                                                                                          |
